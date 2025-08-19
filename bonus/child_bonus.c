@@ -6,13 +6,13 @@
 /*   By: skimura <skimura@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 12:36:09 by skimura           #+#    #+#             */
-/*   Updated: 2025/08/10 20:11:39 by skimura          ###   ########.fr       */
+/*   Updated: 2025/08/14 21:01:30 by skimura          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/pipex_bonus.h"
 
-static void	dup2_and_safe_close(t_pipex *pipex, int oldfd, int newfd);
+static void	dup2_and_safe_close(t_pipex *pipex, int *oldfd, int newfd);
 static void	first_cp(t_pipex *pipex);
 static void	last_cp(t_pipex *pipex, int pipe_idx);
 static void	other_cp(t_pipex *pipex, int pipe_idx);
@@ -32,49 +32,39 @@ void	child_process(t_pipex *pipex, int pipe_idx)
 		free_pipex_and_err_exit(pipex);
 	execve(find_execution_path(pipex, pipe_idx), pipex->cmd->cmds[pipe_idx],
 		pipex->ep);
-	if (errno == ENOEXEC)
+	if (errno == ENOENT)
 		error_cmd(pipex);
-	else if (errno == EACCES || errno == ETXTBSY)
+	else if (errno == ENOEXEC || errno == EACCES || errno == ETXTBSY)
 		error_pd(pipex);
 }
 
-static void	dup2_and_safe_close(t_pipex *pipex, int oldfd, int newfd)
+static void	dup2_and_safe_close(t_pipex *pipex, int *oldfd, int newfd)
 {
-	if (oldfd < 0)
+	if (*oldfd < 0)
 		return ;
-	if (dup2(oldfd, newfd) < 0)
+	if (dup2(*oldfd, newfd) < 0)
 		clean_up(pipex, "dup2");
-	safe_close(oldfd);
+	safe_close(*oldfd);
+	*oldfd = -1;
 }
 
 static void	first_cp(t_pipex *pipex)
 {
 	if (pipex->heredoc)
-	{
-		dup2_and_safe_close(pipex, pipex->heredoc->tmp_fd, STDIN_FILENO);
-		pipex->heredoc->tmp_fd = -1;
-	}
+		dup2_and_safe_close(pipex, &pipex->heredoc->tmp_fd, STDIN_FILENO);
 	else
-	{
-		dup2_and_safe_close(pipex, pipex->file->in_fd, STDIN_FILENO);
-		pipex->file->in_fd = -1;
-	}
-	dup2_and_safe_close(pipex, pipex->pipes_fd[0][1], STDOUT_FILENO);
-	pipex->pipes_fd[0][1] = -1;
+		dup2_and_safe_close(pipex, &pipex->file->in_fd, STDIN_FILENO);
+	dup2_and_safe_close(pipex, &pipex->pipes_fd[0][1], STDOUT_FILENO);
 }
 
 static void	last_cp(t_pipex *pipex, int pipe_idx)
 {
-	dup2_and_safe_close(pipex, pipex->pipes_fd[pipe_idx - 1][0], STDIN_FILENO);
-	pipex->pipes_fd[pipe_idx - 1][0] = -1;
-	dup2_and_safe_close(pipex, pipex->file->out_fd, STDOUT_FILENO);
-	pipex->file->out_fd = -1;
+	dup2_and_safe_close(pipex, &pipex->pipes_fd[pipe_idx - 1][0], STDIN_FILENO);
+	dup2_and_safe_close(pipex, &pipex->file->out_fd, STDOUT_FILENO);
 }
 
 static void	other_cp(t_pipex *pipex, int pipe_idx)
 {
-	dup2_and_safe_close(pipex, pipex->pipes_fd[pipe_idx - 1][0], STDIN_FILENO);
-	pipex->pipes_fd[pipe_idx - 1][0] = -1;
-	dup2_and_safe_close(pipex, pipex->pipes_fd[pipe_idx][1], STDOUT_FILENO);
-	pipex->pipes_fd[pipe_idx][1] = -1;
+	dup2_and_safe_close(pipex, &pipex->pipes_fd[pipe_idx - 1][0], STDIN_FILENO);
+	dup2_and_safe_close(pipex, &pipex->pipes_fd[pipe_idx][1], STDOUT_FILENO);
 }

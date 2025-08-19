@@ -6,12 +6,11 @@
 /*   By: skimura <skimura@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:47:59 by skimura           #+#    #+#             */
-/*   Updated: 2025/08/10 20:59:19 by skimura          ###   ########.fr       */
+/*   Updated: 2025/08/11 15:14:25 by skimura          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/pipex.h"
-
 
 void	*free_arr(char **arr)
 {

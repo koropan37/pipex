@@ -6,7 +6,7 @@
 #    By: skimura <skimura@student.42tokyo.jp>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/06/11 21:24:00 by skimura           #+#    #+#              #
-#    Updated: 2025/08/10 21:03:16 by skimura          ###   ########.fr        #
+#    Updated: 2025/08/14 21:50:58 by skimura          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -64,18 +64,25 @@ WHITE	= \033[0;37m
 
 all: $(NAME)
 
-bonus: $(LIBFT_LIB) $(BONUS_OBJS)
+bonus:
+	@$(MAKE) BONUS=1 $(BONUS_NAME)
+
+ifeq ($(BONUS),1)
+$(NAME): $(LIBFT_LIB) $(BONUS_OBJS)
 	@echo  "$(BOLD)$(GREEN)[INFO]$(CYAN) Building $(WHITE)pipex_bonus..."
-	@$(CC) $(CFLAGS) $(BONUS_OBJS) $(LIBFT_LIB) $(INCLUDES) -o $(BONUS_NAME)
+	@$(CC) $(CFLAGS) $(BONUS_OBJS) $(LIBFT_LIB) $(INCLUDES) -o $(NAME)
 	@echo "$(GREEN)[OK]$(BLUE) Bonus build completed!$(RESET)"
-
-$(LIBFT_LIB):
-	@$(MAKE) -C $(LIBFT_DIR)
-
+else
 $(NAME): $(LIBFT_LIB) $(OBJS)
 	@echo  "$(BOLD)$(GREEN)[INFO]$(CYAN) Building $(WHITE)$(NAME)..."
 	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT_LIB) $(INCLUDES) -o $(NAME)
 	@echo "$(GREEN)[OK]$(BLUE) Build completed!$(RESET)"
+endif
+
+$(LIBFT_LIB):
+	@$(MAKE) -C $(LIBFT_DIR)
+
+
 
 %.o: %.c
 	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
@@ -89,6 +96,6 @@ clean:
 fclean: clean
 	@$(MAKE) -C $(LIBFT_DIR) fclean
 	@$(RM) $(NAME) $(BONUS_NAME)
-	@echo "$(BOLD)$(YELLOW)[DELETE]$(RED)All clean $(NAME) $(BONUS_NAME)$(RESET)"
+	@echo "$(BOLD)$(YELLOW)[DELETE]$(RED)All clean $(NAME) $(RESET)"
 
 re: fclean all

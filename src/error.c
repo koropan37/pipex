@@ -6,7 +6,7 @@
 /*   By: skimura <skimura@student.42tokyo.jp>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:55:12 by skimura           #+#    #+#             */
-/*   Updated: 2025/08/10 21:00:05 by skimura          ###   ########.fr       */
+/*   Updated: 2025/08/11 15:14:21 by skimura          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ void	print_alloc_error(void)
 {
 	ft_dprintf(STDERR_FILENO, "pipex: memory allocation error\n");
 }
-
 
 void	init_error(t_pipex *pipex)
 {
